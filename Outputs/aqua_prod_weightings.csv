@@ -1,0 +1,38 @@
+"isscaap_group","taxa_group_name","taxa","clean_sci_name","species_prod","species_prod_reweight","prod_weighting"
+"Brown seaweeds","Aquatic plants","plants","Laminaria digitata",7.91,7.91,1.95248843046262e-07
+"Brown seaweeds","Aquatic plants","plants","Macrocystis pyrifera",7.91,7.91,1.95248843046262e-07
+"Brown seaweeds","Aquatic plants","plants","Saccharina latissima",399.854,399.854,9.86991540928195e-06
+"Carps, barbels and other cyprinids","Other carps, barbels and cyprinids","oth_carp","Carassius carassius",16969.782,16969.782,0.000286559537316314
+"Carps, barbels and other cyprinids","Other carps, barbels and cyprinids","oth_carp","Ctenopharyngodon idella",31790354.12395,31790354.12395,0.536826528996124
+"Carps, barbels and other cyprinids","Other carps, barbels and cyprinids","oth_carp","Cyprinidae",3677872.118,3677872.118,0.0621062387508958
+"Carps, barbels and other cyprinids","Other carps, barbels and cyprinids","oth_carp","Cyprinus carpio",23733848.50315,23733848.50315,0.400780672715664
+"Carps, barbels and other cyprinids","Silver and bighead carp","hypoph_carp","Hypophthalmichthys molitrix",27755267.22056,27755267.22056,0.999999639708156
+"Miscellaneous coastal fishes","Miscellaneous marine fishes","misc_marine","Dicentrarchus labrax",1108698.642,1108698.642,0.350889879734158
+"Miscellaneous coastal fishes","Miscellaneous marine fishes","misc_marine","Epinephelus spp",998707.58599,462043.207498571,0.146231157295093
+"Miscellaneous coastal fishes","Miscellaneous marine fishes","misc_marine","Cynoscion spp",4.397,462043.207498571,0.146231157295093
+"Miscellaneous coastal fishes","Miscellaneous marine fishes","misc_marine","Sparus aurata",1124471.8275,1124471.8275,0.355881904576125
+"Miscellaneous diadromous fishes","Milkfish","milkfish","Chanos chanos",6890045.30712,6890045.30712,1
+"Miscellaneous diadromous fishes","Miscellaneous diadromous fishes","misc_diad","Lates calcarifer",444858.686055,444858.686055,0.923883628897986
+"Miscellaneous freshwater fishes","Catfish","catfish","Clarias batrachus",46646.257,46646.257,0.00249528607321043
+"Miscellaneous freshwater fishes","Catfish","catfish","Clarias gariepinus",1470554.136,1470554.136,0.0786655455648412
+"Miscellaneous freshwater fishes","Catfish","catfish","Pangasianodon hypophthalmus",12934369.57085,12934369.57085,0.691908726050597
+"Miscellaneous freshwater fishes","Catfish","catfish","Pangasius spp",2517154.94,4242181.2259625,0.226930442311351
+"Miscellaneous pelagic fishes","Miscellaneous marine fishes","misc_marine","Seriola rivoliana",2400,2400,0.000759571338378151
+"Mussels","Bivalves","bivalves","Mytilus edulis",1010720.159,1010720.159,0.192475036450859
+"Mussels","Bivalves","bivalves","Mytilus galloprovincialis",613771.652,613771.652,0.116882719751119
+"Oysters","Bivalves","bivalves","Crassostrea gigas",3626683.49795,3626683.49795,0.690642243798022
+"Red seaweeds","Aquatic plants","plants","Gracilaria chilensis",22636128.43,22636128.43,0.558745624147169
+"Red seaweeds","Aquatic plants","plants","Gracilaria spp",22636128.43,8937929.92233333,0.220622057719868
+"Red seaweeds","Aquatic plants","plants","Porphyra spp",8354907,8937929.92233333,0.220622057719868
+"Salmons, trouts, smelts","Salmon","salmon","Oncorhynchus kisutch",940090.57,940090.57,0.0626928580507399
+"Salmons, trouts, smelts","Trout","trout","Oncorhynchus mykiss",4873124.75152,4873124.75152,1
+"Salmons, trouts, smelts","Salmon","salmon","Oncorhynchus tshawytscha",80410,80410,0.00536239047250522
+"Salmons, trouts, smelts","Salmon","salmon","Salmo salar",13865535.997,13865535.997,0.924666311733502
+"Salmons, trouts, smelts","Salmon","salmon","Salmonidae",109141.5,109141.5,0.00727843974325243
+"Salmons, trouts, smelts","Miscellaneous diadromous fishes","misc_diad","Salvelinus alpinus",36650.751,36650.751,0.0761163711020135
+"Shrimps, prawns","Shrimps, prawns","shrimp","Penaeus monodon",4330591.768,4330591.768,0.151014681485398
+"Shrimps, prawns","Shrimps, prawns","shrimp","Litopenaeus vannamei",24346035.73208,24346035.73208,0.848985318514602
+"Tilapias and other cichlids","Tilapias and other cichlids","tilapia","Oreochromis niloticus",24440812.844,24440812.844,1
+"Flounders, halibuts, soles","Miscellaneous marine fishes","misc_marine","Scophthalmidae",10,10,3.16488057657563e-06
+NA,"Silver and bighead carp","hypoph_carp","Mixed H. molitrix and H. nobilis",10,10,3.6029184362073e-07
+"Miscellaneous demersal fishes","Miscellaneous marine fishes","misc_marine","Anoplopoma fimbria",10,10,3.16488057657563e-06

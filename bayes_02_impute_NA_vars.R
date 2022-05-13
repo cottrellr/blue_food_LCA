@@ -18,8 +18,11 @@ library(bayesplot) # for mcmc_areas_ridges
 library(shinystan)
 library(brms)
 library(tidybayes)
-datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
+library(cowplot)
+library(ggrepel)
+
+datadir <- here("All Input Data")
+outdir <- here("Outputs")
 lca_dat_clean_groups <- read.csv(file.path(outdir, "lca_clean_with_groups.csv"))
 
 ######################################################################################################
@@ -156,7 +159,7 @@ brms_new_fcr_data <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled))
 # Make predictions
 #predicted_fcr_dat <- predict(fit_no_na, newdata = brms_new_fcr_data)
 # Use tidybayes instead:
-predicted_fcr_dat <- add_predicted_draws(newdata = brms_new_fcr_data, model = fit_fcr_no_na)
+predicted_fcr_dat <- add_predicted_draws(newdata = brms_new_fcr_data, object = fit_fcr_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -321,7 +324,7 @@ brms_new_feed_data <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled))
 # Make predictions
 #predicted_feed_dat <- predict(fit_no_na, newdata = brms_new_feed_data)
 # Use tidybayes instead:
-predicted_feed_dat <- add_predicted_draws(newdata = brms_new_feed_data, model = fit_feed_no_na)
+predicted_feed_dat <- add_predicted_draws(newdata = brms_new_feed_data, object = fit_feed_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -517,7 +520,7 @@ brms_new_electric_dat <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scale
 # Make predictions
 #predicted_electric_dat <- predict(fit_no_na, newdata = brms_new_electric_data)
 # Use tidybayes instead:
-predicted_electric_dat <- add_predicted_draws(newdata = brms_new_electric_dat, model = fit_electric_no_na)
+predicted_electric_dat <- add_predicted_draws(newdata = brms_new_electric_dat, object = fit_electric_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -698,7 +701,7 @@ brms_new_diesel_dat <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled)
 # Make predictions
 #predicted_diesel_dat <- predict(fit_no_na, newdata = brms_new_diesel_data)
 # Use tidybayes instead:
-predicted_diesel_dat <- add_predicted_draws(newdata = brms_new_diesel_dat, model = fit_diesel_no_na)
+predicted_diesel_dat <- add_predicted_draws(newdata = brms_new_diesel_dat, object = fit_diesel_no_na)
 #predicted_diesel_dat <- add_fitted_draws(newdata = brms_new_diesel_dat, model = fit_diesel_no_na)
 
 # Get point and interval estimates from predicted data
@@ -880,7 +883,7 @@ brms_new_petrol_dat <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled)
 # Make predictions
 #predicted_petrol_dat <- predict(fit_no_na, newdata = brms_new_petrol_data)
 # Use tidybayes instead:
-predicted_petrol_dat <- add_predicted_draws(newdata = brms_new_petrol_dat, model = fit_petrol_no_na)
+predicted_petrol_dat <- add_predicted_draws(newdata = brms_new_petrol_dat, object = fit_petrol_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -1051,7 +1054,7 @@ brms_new_natgas_dat <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled)
 # Make predictions
 #predicted_natgas_dat <- predict(fit_no_na, newdata = brms_new_natgas_data)
 # Use tidybayes instead:
-predicted_natgas_dat <- add_predicted_draws(newdata = brms_new_natgas_dat, model = fit_natgas_no_na)
+predicted_natgas_dat <- add_predicted_draws(newdata = brms_new_natgas_dat, object = fit_natgas_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns

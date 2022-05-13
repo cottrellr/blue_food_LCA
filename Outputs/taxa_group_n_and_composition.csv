@@ -1,0 +1,80 @@
+"","taxa_group_name","clean_sci_name","Country","iso3c","n_farms","n_studies"
+"1","Aquatic plants","Gracilaria chilensis","Chile","CHL",1,1
+"2","Aquatic plants","Gracilaria spp","China","CHN",61,1
+"3","Aquatic plants","Laminaria digitata","Denmark","DNK",1,1
+"4","Aquatic plants","Macrocystis pyrifera","Chile","CHL",1,1
+"5","Aquatic plants","Porphyra spp","China","CHN",39,1
+"6","Aquatic plants","Saccharina latissima","N/A",NA,1,1
+"7","Aquatic plants","Saccharina latissima","Sweden","SWE",1,1
+"8","Bivalves","Crassostrea gigas","Italy","ITA",1,1
+"9","Bivalves","Crassostrea gigas","United Kingdom","GBR",1,1
+"10","Bivalves","Mytilus edulis","France","FRA",6,1
+"11","Bivalves","Mytilus edulis","Norway","NOR",1,1
+"12","Bivalves","Mytilus edulis","Spain","ESP",1,1
+"13","Bivalves","Mytilus edulis","United Kingdom","GBR",2,2
+"14","Bivalves","Mytilus galloprovincialis","Algeria","DZA",2,2
+"15","Bivalves","Mytilus galloprovincialis","Italy","ITA",30,1
+"16","Bivalves","Mytilus galloprovincialis","Spain","ESP",1,1
+"17","Bivalves","Mytilus galloprovincialis","United States","USA",1,1
+"18","Catfish","Clarias batrachus","Indonesia","IDN",5,1
+"19","Catfish","Clarias gariepinus","Netherlands","NLD",1,1
+"20","Catfish","Pangasianodon hypophthalmus","Indonesia","IDN",9,2
+"21","Catfish","Pangasianodon hypophthalmus","Vietnam","VNM",222,4
+"22","Catfish","Pangasius spp","Vietnam","VNM",71,4
+"23","Milkfish","Chanos chanos","Indonesia","IDN",1,1
+"24","Milkfish","Chanos chanos","Philippines","PHL",1,1
+"25","Miscellaneous diadromous fishes","Lates calcarifer","Vietnam","VNM",1,1
+"26","Miscellaneous diadromous fishes","Salvelinus alpinus","Canada","CAN",2,2
+"27","Miscellaneous diadromous fishes","Salvelinus alpinus","USA","USA",1,1
+"28","Miscellaneous marine fishes","Anoplopoma fimbria","Canada","CAN",1,1
+"29","Miscellaneous marine fishes","Cynoscion spp","Brazil","BRA",3,1
+"30","Miscellaneous marine fishes","Cynoscion spp","Peru","PER",5,1
+"31","Miscellaneous marine fishes","Dicentrarchus labrax","Greece","GRC",1,1
+"32","Miscellaneous marine fishes","Dicentrarchus labrax","Tunisia","TUN",2,2
+"33","Miscellaneous marine fishes","Epinephelus spp","Indonesia","IDN",5,1
+"34","Miscellaneous marine fishes","Scophthalmidae","France","FRA",1,1
+"35","Miscellaneous marine fishes","Scophthalmidae","Spain","ESP",1,1
+"36","Miscellaneous marine fishes","Seriola rivoliana","USA","USA",1,1
+"37","Miscellaneous marine fishes","Sparus aurata","Spain","ESP",1,1
+"38","Miscellaneous marine fishes","Sparus aurata","Tunisia","TUN",1,1
+"39","Other carps, barbels and cyprinids","Carassius carassius","China","CHN",5,1
+"40","Other carps, barbels and cyprinids","Ctenopharyngodon idella","China","CHN",28,2
+"41","Other carps, barbels and cyprinids","Cyprinidae","China","CHN",278,5
+"42","Other carps, barbels and cyprinids","Cyprinidae","India","IND",29,2
+"43","Other carps, barbels and cyprinids","Cyprinus carpio","Indonesia","IDN",14,2
+"44","Salmon","Oncorhynchus kisutch","Chile","CHL",1,1
+"45","Salmon","Oncorhynchus tshawytscha","New Zealand","NZL",1,1
+"46","Salmon","Salmo salar","Australia","AUS",3,1
+"47","Salmon","Salmo salar","Canada","CAN",3,3
+"48","Salmon","Salmo salar","Chile","CHL",3,3
+"49","Salmon","Salmo salar","France","FRA",1,1
+"50","Salmon","Salmo salar","Norway","NOR",7,7
+"51","Salmon","Salmo salar","Scotland",NA,7,2
+"52","Salmon","Salmo salar","UK","GBR",1,1
+"53","Salmon","Salmo salar","United Kingdom","GBR",1,1
+"54","Salmon","Salmo salar","United States","USA",1,1
+"55","Salmon","Salmonidae","France","FRA",1,1
+"56","Salmon","Salmonidae","United Kingdom","GBR",1,1
+"57","Shrimps, prawns","Litopenaeus vannamei","China","CHN",208,3
+"58","Shrimps, prawns","Litopenaeus vannamei","Indonesia","IDN",11,1
+"59","Shrimps, prawns","Litopenaeus vannamei","Thailand","THA",181,2
+"60","Shrimps, prawns","Litopenaeus vannamei","Vietnam","VNM",30,1
+"61","Shrimps, prawns","Penaeus monodon","Bangladesh","BGD",89,2
+"62","Shrimps, prawns","Penaeus monodon","Thailand","THA",1,1
+"63","Shrimps, prawns","Penaeus monodon","Vietnam","VNM",80,2
+"64","Silver and bighead carp","Hypophthalmichthys molitrix","China","CHN",8,1
+"65","Silver and bighead carp","Mixed H. molitrix and H. nobilis","China","CHN",1,1
+"66","Tilapias and other cichlids","Oreochromis niloticus","Bangladesh","BGD",10,1
+"67","Tilapias and other cichlids","Oreochromis niloticus","China","CHN",95,3
+"68","Tilapias and other cichlids","Oreochromis niloticus","Egypt","EGY",139,5
+"69","Tilapias and other cichlids","Oreochromis niloticus","Indonesia","IDN",10,3
+"70","Tilapias and other cichlids","Oreochromis niloticus","Peru","PER",1,1
+"71","Trout","Oncorhynchus mykiss","Chile","CHL",1,1
+"72","Trout","Oncorhynchus mykiss","Denmark","DNK",1,1
+"73","Trout","Oncorhynchus mykiss","Finland","FIN",2,2
+"74","Trout","Oncorhynchus mykiss","France","FRA",34,6
+"75","Trout","Oncorhynchus mykiss","Germany","DEU",1,1
+"76","Trout","Oncorhynchus mykiss","Germany, Denmark",NA,1,1
+"77","Trout","Oncorhynchus mykiss","Iran","IRN",1,1
+"78","Trout","Oncorhynchus mykiss","Peru","PER",5,1
+"79","Trout","Oncorhynchus mykiss","USA","USA",1,1

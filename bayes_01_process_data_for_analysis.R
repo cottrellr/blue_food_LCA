@@ -12,10 +12,11 @@ library(bayesplot) # for mcmc_areas_ridges
 library(shinystan)
 library(brms)
 library(tidybayes)
+library(here)
 
 # Mac
-datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
+datadir <- here("All Input Data")
+outdir <- here("Outputs")
 source("Functions.R")
 
 # Full raw dataset used in published analysis
@@ -30,7 +31,7 @@ lca_dat_clean <- read.csv(file.path(datadir, "LCI_compiled_for_SI.csv"))
 
 # Rebuild FAO fish production from zip file
 #fishstat_dat <- rebuild_fish("/Volumes/jgephart/FishStatR/Data/Production-Global/ZippedFiles/GlobalProduction_2019.1.0.zip")
-fishstat_dat <- rebuild_fish("/Volumes/jgephart/FishStatR/Data/Production-Global/ZippedFiles/GlobalProduction_2020.1.0.zip")
+fishstat_dat <- rebuild_fish(here("All Input Data/GlobalProduction_2020.1.0.zip"))
 # DATA DOCUMENTATION: Zip file can be downloaded from FAO FishStat: http://www.fao.org/fishery/static/Data/GlobalProduction_2020.1.0.zip
 # File can also be provided by corresponding author upon request
 
@@ -122,7 +123,7 @@ feed_fp <- feed_fp %>%
 # http://www.fao.org/faostat/en/#data/TP
 # Query terms for downloading: SELECT All countries, Export quantity, All items
 # File can also be provided by corresponding author upon request
-faostat <- read.csv(file.path(datadir, "FAOSTAT_data_12-9-2020.csv"))
+faostat <- read.csv(file.path(datadir, "FAOSTAT_data_5-13-2022.csv"))
 faostat$iso3c <- countrycode(faostat$Area, origin = "country.name", destination = "iso3c")
 
 # Calculate soy weights

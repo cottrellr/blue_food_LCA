@@ -1,0 +1,61 @@
+"Input.type","Impact.category","Allocation","Units","ave_stressor"
+"Soy","Freshwater eutrophication","Economic","kg P-eq / kg",0.000534812495414605
+"Soy","Freshwater eutrophication","Gross energy content","kg P-eq / kg",0.000417861429203221
+"Soy","Freshwater eutrophication","Mass","kg P-eq / kg",0.000517008230569069
+"Soy","Global warming potential","Economic","kg CO2-eq / kg",3.60451628223061
+"Soy","Global warming potential","Gross energy content","kg CO2-eq / kg",3.04523425459482
+"Soy","Global warming potential","Mass","kg CO2-eq / kg",3.56987179313785
+"Soy","Land use","Economic","m2a / kg",4.81709884019514
+"Soy","Land use","Gross energy content","m2a / kg",2.92497141782116
+"Soy","Land use","Mass","m2a / kg",4.22887355024393
+"Soy","Marine eutrophication","Economic","kg N-eq / kg",0.00227951066211384
+"Soy","Marine eutrophication","Gross energy content","kg N-eq / kg",0.00134646172832523
+"Soy","Marine eutrophication","Mass","kg N-eq / kg",0.00198249128312198
+"Soy","Water consumption","Economic","m3 / kg",0.218100208746019
+"Soy","Water consumption","Gross energy content","m3 / kg",0.159132175823743
+"Soy","Water consumption","Mass","m3 / kg",0.18475720013919
+"Crop","Freshwater eutrophication","Economic","kg P-eq / kg",0.000131922557647535
+"Crop","Freshwater eutrophication","Gross energy content","kg P-eq / kg",0.000169555890980869
+"Crop","Freshwater eutrophication","Mass","kg P-eq / kg",0.000196422557647535
+"Crop","Global warming potential","Economic","kg CO2-eq / kg",0.552691750233834
+"Crop","Global warming potential","Gross energy content","kg CO2-eq / kg",0.8908584169005
+"Crop","Global warming potential","Mass","kg CO2-eq / kg",1.21019175023383
+"Crop","Land use","Economic","m2a / kg",1.95122168907397
+"Crop","Land use","Gross energy content","m2a / kg",2.5850550224073
+"Crop","Land use","Mass","m2a / kg",2.94538835574063
+"Crop","Marine eutrophication","Economic","kg N-eq / kg",0.0022993142049735
+"Crop","Marine eutrophication","Gross energy content","kg N-eq / kg",0.00309764753830684
+"Crop","Marine eutrophication","Mass","kg N-eq / kg",0.0035593142049735
+"Crop","Water consumption","Economic","m3 / kg",0.0228808010172473
+"Crop","Water consumption","Gross energy content","m3 / kg",0.0304581241562248
+"Crop","Water consumption","Mass","m3 / kg",0.0350858010172473
+"Livestock","Freshwater eutrophication","Economic","kg P-eq / kg",0.000114474854356081
+"Livestock","Freshwater eutrophication","Gross energy content","kg P-eq / kg",0.0015429666828811
+"Livestock","Freshwater eutrophication","Mass","kg P-eq / kg",0.00102693151481115
+"Livestock","Global warming potential","Economic","kg CO2-eq / kg",0.649645026753814
+"Livestock","Global warming potential","Gross energy content","kg CO2-eq / kg",7.51524851387369
+"Livestock","Global warming potential","Mass","kg CO2-eq / kg",5.40415781727224
+"Livestock","Land use","Economic","m2a / kg",1.01979838278735
+"Livestock","Land use","Gross energy content","m2a / kg",13.6118753040206
+"Livestock","Land use","Mass","m2a / kg",9.63232810476884
+"Livestock","Marine eutrophication","Economic","kg N-eq / kg",0.00169150647832868
+"Livestock","Marine eutrophication","Gross energy content","kg N-eq / kg",0.0228605367758045
+"Livestock","Marine eutrophication","Mass","kg N-eq / kg",0.0150698704334265
+"Livestock","Water consumption","Economic","m3 / kg",0.0586938986841252
+"Livestock","Water consumption","Gross energy content","m3 / kg",0.574454719925178
+"Livestock","Water consumption","Mass","m3 / kg",0.381693151481115
+"Fishery","Freshwater eutrophication","Economic","kg P-eq / kg",8.78638658652862e-07
+"Fishery","Freshwater eutrophication","Gross energy content","kg P-eq / kg",1.86586476070921e-06
+"Fishery","Freshwater eutrophication","Mass","kg P-eq / kg",1.86987600167894e-06
+"Fishery","Global warming potential","Economic","kg CO2-eq / kg",1.13009395222176
+"Fishery","Global warming potential","Gross energy content","kg CO2-eq / kg",2.32255739865771
+"Fishery","Global warming potential","Mass","kg CO2-eq / kg",2.33443863953062
+"Fishery","Land use","Economic","m2a / kg",5.22932010667275e-05
+"Fishery","Land use","Gross energy content","m2a / kg",0.00010455032835029
+"Fishery","Land use","Mass","m2a / kg",0.000104359171835188
+"Fishery","Marine eutrophication","Economic","kg N-eq / kg",4.37087728962525e-06
+"Fishery","Marine eutrophication","Gross energy content","kg N-eq / kg",6.41037703444025e-06
+"Fishery","Marine eutrophication","Mass","kg N-eq / kg",6.13311194564863e-06
+"Fishery","Water consumption","Economic","m3 / kg",0.0119210816810864
+"Fishery","Water consumption","Gross energy content","m3 / kg",0.0269113269986371
+"Fishery","Water consumption","Mass","m3 / kg",0.027105342553113

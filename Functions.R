@@ -744,7 +744,7 @@ calc_chicken_weights <- function(faostat = faostat, feed_fp = feed_fp){
   
   weightings <-  faostat %>%
     filter(Unit == "tonnes") %>%
-    filter(Item %in% c("Poultry Meat")) %>%
+    filter(Item %in% c("Meat, chicken")) %>%
     mutate(iso3c = ifelse(iso3c %in% c("FRA", "ITA"), "EUR", iso3c)) %>%
     group_by(iso3c) %>%
     summarise(Exports = sum(Value, na.rm = TRUE)) %>%
@@ -816,8 +816,8 @@ combine_fish_weights <- function(weighted_fishery = weighted_fishery, weighted_f
 
 plot_for_si <- function(name_of_fit, name_of_data, name_of_var, regression_type = "gamma"){
   # Mac
-  datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-  outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
+  datadir <- here("All Input Data")
+  outdir <- here("Outputs")
   
   library(tidyverse)
   library(modelr)
