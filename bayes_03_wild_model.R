@@ -211,7 +211,7 @@ no_na_mod <- stan_model(model_code = stan_no_na)
 # Set seed while testing
 fit_no_na <- sampling(object = no_na_mod, 
                       data = stan_data, 
-                      cores = 4, 
+                      cores = 2, 
                       seed = "11729", 
                       iter = 2500, 
                       control = list(adapt_delta = 0.99, max_treedepth = 15))
