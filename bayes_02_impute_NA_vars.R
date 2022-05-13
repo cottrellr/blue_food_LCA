@@ -1226,7 +1226,7 @@ brms_new_yield_dat <- data.frame(cbind(X_taxa_new_scaled, X_ordinal_new_scaled))
 # Make predictions
 #predicted_yield_dat <- predict(fit_no_na, newdata = brms_new_yield_data)
 # Use tidybayes instead:
-predicted_yield_dat <- add_predicted_draws(newdata = brms_new_yield_dat, model = fit_yield_no_na)
+predicted_yield_dat <- add_predicted_draws(newdata = brms_new_yield_dat, object = fit_yield_no_na)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -1302,7 +1302,7 @@ brms_yield_dat_no_taxa <- data.frame(X_ordinal_scaled_no_taxa)
 # Make predictions
 #predicted_yield_dat <- predict(fit_no_na, newdata = brms_new_yield_data)
 # Use tidybayes instead:
-predicted_yield_dat_no_taxa <- add_predicted_draws(newdata = brms_yield_dat_no_taxa, model = fit_yield_no_taxa)
+predicted_yield_dat_no_taxa <- add_predicted_draws(newdata = brms_yield_dat_no_taxa, object = fit_yield_no_taxa)
 
 # Get point and interval estimates from predicted data
 # Select just the prediction columns
@@ -1494,9 +1494,9 @@ lca_dat_imputed <- feed_dat_merge %>%
          feed_animal = if_else(fcr==0, true = 0, false = feed_animal))
 
 
-# READ in additional data columns needed for analysis:
-datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
+# # READ in additional data columns needed for analysis:
+datadir <- here("All Input Data")
+outdir <- here("Outputs")
 
 # Join with other data that also need edible weight adjustment
 # For N and P models: N and P content of seafood products
@@ -1515,9 +1515,9 @@ lca_dat_imputed_new_iso <- lca_dat_imputed %>%
                            TRUE ~ iso3c))
 
 # Merge with lca_dat_imputed
-lca_dat_live_weight <- lca_dat_imputed_new_iso %>%
-  left_join(fish_content_dat, by = "clean_sci_name") %>%
-  left_join(evap_clim, by = "iso3c")
+lca_dat_live_weight <- lca_dat_imputed_new_iso #%>%
+  # left_join(fish_content_dat, by = "clean_sci_name") %>%
+  # left_join(evap_clim, by = "iso3c")
 
 write.csv(lca_dat_live_weight, file.path(outdir, paste("lca-dat-imputed-vars_rep-sqrt-n-farms_live-weight.csv", sep = "")), row.names = FALSE)
 
@@ -1536,10 +1536,10 @@ lca_dat_edible <- lca_dat_live_weight %>%
          Petrol_L = Petrol_L * 1/(edible_mean/100),
          NaturalGas_L = NaturalGas_L * 1/(edible_mean/100)) %>%
   # Land
-  mutate(Yield_m2_per_t = Yield_m2_per_t * 1/(edible_mean/100)) %>%
+  mutate(Yield_m2_per_t = Yield_m2_per_t * 1/(edible_mean/100)) #%>%
   # N and P
-  mutate(N_t_liveweight_t = N_t_liveweight_t * 1/(edible_mean/100),
-         P_t_liveweight_t = P_t_liveweight_t * 1/(edible_mean/100))
+  # mutate(N_t_liveweight_t = N_t_liveweight_t * 1/(edible_mean/100),
+  #        P_t_liveweight_t = P_t_liveweight_t * 1/(edible_mean/100))
 # NOTE: No additional adjustments needed for water model (already adjusted Yield)
 
 write.csv(lca_dat_edible, file.path(outdir, paste("lca-dat-imputed-vars_rep-sqrt-n-farms_edible-weight.csv", sep = "")), row.names = FALSE)

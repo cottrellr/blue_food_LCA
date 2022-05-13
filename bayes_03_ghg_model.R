@@ -523,6 +523,11 @@ tx_feed_key <- lca_model_dat %>%
          taxa = as.factor(taxa),
          full_taxa_name = as.factor(full_taxa_name))
 
+#export model output
+write_csv(lca_model_dat, file = here("Outputs/lca_model_data_no-summary.csv"))
+
+
+
 sci_feed_key <- lca_model_dat %>%
   select(contains(c("clean_sci_name", "taxa", "sci", "soy", "crops", "fmfo", "animal"))) %>%
   pivot_longer(cols = contains(c("soy", "crops", "fmfo", "animal")), names_to = "feed") %>%
