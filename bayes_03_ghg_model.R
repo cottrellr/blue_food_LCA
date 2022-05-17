@@ -19,13 +19,11 @@ library(bayesplot) # for mcmc_areas_ridges
 library(shinystan)
 library(brms)
 library(tidybayes)
+library(here)
 
-# Mac
-datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
 # Windows
-# datadir <- "K:/BFA Environment 2/Data"
-# outdir <- "K:BFA Environment 2/Outputs"
+datadir <- here("All Input Data")
+outdir <- here("Outputs")
 
 ######################
 # STEP 1: LOAD AND FORMAT DATA
@@ -37,7 +35,7 @@ lca_full_dat <- read.csv(file.path(outdir, "lca-dat-imputed-vars_rep-sqrt-n-farm
 # Get farm-associated carbon footprints data
 # Add iso3c
 electric_fp_dat <- read.csv(file.path(datadir, "electricity_GWP.csv")) %>%
-  mutate(iso3c = countrycode(Country, origin = "country.name", destination = "iso3c"))
+  mutate(iso3c = countrycode(ï..Country, origin = "country.name", destination = "iso3c"))
 other_energy_fp_dat <- read.csv(file.path(datadir, "energy_carriers_impact_factors.csv"))
 
 # units for diesel, petrol, and natural gas constants are in kg CO2-eq / L
@@ -78,7 +76,7 @@ lca_model_dat <- lca_full_dat %>%
   # Multiply energy input by their Carbon (i.e., GHG) footprint, then sum across energy inputs
   # (Electricity use * country-specific GHG of electricity) + (Diesel * GHG of diesel) + (Petrol * GHG of petrol) + (Natural gas * GHG of natural gas)
   # Calculate electriciy GHG footprint
-  left_join(electric_fp_dat %>% select(-Country), by = "iso3c") %>% 
+  left_join(electric_fp_dat %>% select(-ï..Country), by = "iso3c") %>% 
   mutate(GWP_perkWh_kgCO2eq = if_else(is.na(GWP_perkWh_kgCO2eq), true = mean(GWP_perkWh_kgCO2eq, na.rm = TRUE), false = GWP_perkWh_kgCO2eq)) %>% # for studies with no country data, just use the average across countries
   mutate(electric_ghg = electric * GWP_perkWh_kgCO2eq) %>%
   # Calculate diesel GHG footprint
@@ -406,9 +404,9 @@ no_na_mod <- stan_model(model_code = stan_no_na)
 start_sampling <- Sys.time()
 fit_no_na <- sampling(object = no_na_mod, 
                       data = stan_data, 
-                      cores = 4, 
+                      cores = 2, 
                       seed = "11729", 
-                      iter = 2000, 
+                      iter = 1000, 
                       control = list(adapt_delta = 0.99, max_treedepth = 15))
 #fit_no_na <- sampling(object = no_na_mod, data = stan_data, cores = 4, iter = 5000, control = list(adapt_delta = 0.99))
 end_sampling <- Sys.time()
@@ -457,7 +455,7 @@ if (impact == "Global warming potential") {
 # Key for naming taxa levels
 # Get full taxa group names back
 tx_index_key <- lca_model_dat %>%
-  group_by(clean_sci_name) %>%
+  group_by(clean_sci_name) %>% filter(taxa == "shrimp") %>%
   mutate(n_obs = n()) %>%
   ungroup() %>%
   select(taxa, tx) %>%
@@ -477,7 +475,7 @@ tx_index_key <- lca_model_dat %>%
 # Key for naming sci levels
 # Get full taxa group names back
 sci_index_key <- lca_model_dat %>%
-  group_by(clean_sci_name) %>%
+  group_by(clean_sci_name) %>% filter(taxa == "shrimp") %>%
   mutate(n_obs = n()) %>%
   ungroup() %>%
   select(clean_sci_name, sci, taxa, tx, n_obs) %>%
@@ -568,7 +566,7 @@ get_variables(fit_no_na)
 # Mean off-farm (feed) impact taxa-level
 fit_no_na %>%
   spread_draws(tx_feed_fp_w[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   mutate(tx_feed_fp_w = if_else(taxa %in% c("bivalves", "plants"), true = 0, false = tx_feed_fp_w),
          .lower = if_else(taxa %in% c("bivalves", "plants"), true = 0, false = .lower),
@@ -582,7 +580,8 @@ fit_no_na %>%
   geom_point(x = 0, y = "plants") +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact")
+  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_OFF-FARM-TAXA-LEVEL-WEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Same but as CSV output
@@ -599,7 +598,7 @@ fit_no_na %>%
 # Mean on-farm impact taxa-level
 fit_no_na %>%
   spread_draws(tx_farm_fp_w[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   # REORDER taxa axis
   mutate(full_taxa_name = fct_relevel(full_taxa_name, full_taxa_name_order)) %>%
@@ -608,7 +607,8 @@ fit_no_na %>%
   geom_interval(aes(xmin = .lower, xmax = .upper)) +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean on-farm impact")
+  labs(x = units_for_plot, y = "", title = "Mean on-farm impact")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_ON-FARM-TAXA-LEVEL-WEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Same but as CSV output
@@ -622,14 +622,14 @@ fit_no_na %>%
 # Mean total impact taxa-level
 fit_no_na %>%
   spread_draws(tx_total_fp_w[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   # Filter out tx_total_fp_w for plants and bivalves
   filter(taxa %in% c("bivalves", "plants")==FALSE) %>%
   # Substitute on_farm data as total impact for plants and bivalves
   bind_rows(fit_no_na %>% 
               spread_draws(tx_farm_fp_w[tx]) %>% 
-              median_qi(.width = c(0.95, 0.8, 0.5)) %>% 
+              median_qi(.width = c(0.95)) %>% 
               left_join(tx_index_key, by = "tx") %>% 
               filter(taxa %in% c("bivalves", "plants")) %>% 
               rename(tx_total_fp_w = tx_farm_fp_w)) %>%
@@ -640,7 +640,8 @@ fit_no_na %>%
   geom_interval(aes(xmin = .lower, xmax = .upper)) +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_TOTAL-IMPACT-TAXA-LEVEL-WEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Same but as CSV output
@@ -665,7 +666,8 @@ fit_no_na %>%
   geom_pointinterval() +
   theme_classic() + 
   sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Weighted sci-level off-farm impacts", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Weighted sci-level off-farm impacts", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_OFF-FARM-SCI-LEVEL-WEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 
@@ -678,7 +680,8 @@ fit_no_na %>%
   geom_pointinterval() +
   theme_classic() + 
   sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Weighted sci-level on-farm impacts", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Weighted sci-level on-farm impacts", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_ON-FARM-SCI-LEVEL-WEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 
@@ -699,13 +702,14 @@ fit_no_na %>%
   geom_pointinterval() +
   theme_classic() + 
   sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_OFF-FARM-SCI-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Taxa-level
 fit_no_na %>%
   spread_draws(tx_feed_fp[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   # SET plants and bivalves to 0
   mutate(tx_feed_fp = if_else(taxa %in% c("bivalves", "plants"), true = 0, false = tx_feed_fp),
@@ -720,7 +724,8 @@ fit_no_na %>%
   geom_point(x = 0, y = "plants") +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact")
+  labs(x = units_for_plot, y = "", title = "Mean off-farm (feed) impact")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_OFF-FARM-TAXA-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 ###########################################################
@@ -735,13 +740,14 @@ fit_no_na %>%
   geom_pointinterval() +
   theme_classic() + 
   sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean on-farm impact", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Mean on-farm impact", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_ON-FARM-SCI-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Taxa-level
 fit_no_na %>%
   spread_draws(tx_mu_farm[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   # REORDER taxa axis
   mutate(full_taxa_name = fct_relevel(full_taxa_name, full_taxa_name_order)) %>%
@@ -750,7 +756,8 @@ fit_no_na %>%
   geom_interval(aes(xmin = .lower, xmax = .upper)) +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Mean on-farm impact", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Mean on-farm impact", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_ON-FARM-TAXA-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 ###########################################################
@@ -764,13 +771,14 @@ fit_no_na %>%
   geom_pointinterval() +
   theme_classic() + 
   sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group") 
+  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group") +stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_TOTAL-IMPACT-SCI-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 # Taxa-level
 fit_no_na %>%
   spread_draws(tx_total_fp[tx]) %>%
-  median_qi(.width = c(0.95, 0.8, 0.5)) %>%
+  median_qi(.width = c(0.95)) %>%
   left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
   # REORDER taxa axis
   mutate(full_taxa_name = fct_relevel(full_taxa_name, full_taxa_name_order)) %>%
@@ -779,7 +787,8 @@ fit_no_na %>%
   geom_interval(aes(xmin = .lower, xmax = .upper)) +
   theme_classic() + 
   tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group")
+  labs(x = units_for_plot, y = "", title = "Total (on and off-farm) impact", color = "taxa group")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, paste("plot_", impact, "_", set_allocation, "-allocation_TOTAL-IMPACT-TAXA-LEVEL-UNWEIGHTED.png", sep = "")), width = 11, height = 8.5)
 
 rm(fit_no_na) # Clear fit-no-na before restarting loop

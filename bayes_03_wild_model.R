@@ -8,17 +8,18 @@ library(bayesplot) # for mcmc_areas_ridges
 library(shinystan)
 library(brms)
 library(tidybayes)
+library(here)
 
 # Mac
-datadir <- "/Volumes/jgephart/BFA Environment 2/Data"
-outdir <- "/Volumes/jgephart/BFA Environment 2/Outputs"
+datadir <- here("All Input Data")
+outdir <- here("Outputs")
 
 # GHG data
 wild_dat <- read.csv(file.path(datadir, "fisheries_fuel_use.csv")) %>% as_tibble()
 
 # Apply gear, species, and consumption weighting
 wild_dat_new_weights <- wild_dat %>%
-  filter(species_group != "Finfish") %>%
+  filter(ï..species_group != "Finfish") %>%
   # Remove mixed gear and nei observations
   filter(!str_detect(pattern = " nei", species)) %>%
   filter(gear != "Other, Mixed, or Unknown") %>%
@@ -29,19 +30,19 @@ wild_dat_new_weights <- wild_dat %>%
   mutate(gear_weights_new = gear_weighting/sum(gear_weighting)) %>%
   ungroup() %>%
   # Re-weight species and consumption within species_groups
-  group_by(species_group) %>%
+  group_by(ï..species_group) %>%
   mutate(species_weights_new = species_weighting/sum(species_weighting),
          consumption_weights_new = consumption_weighting/sum(consumption_weighting)) %>%
   ungroup() %>%
   # Calculate overall weights and re-weight
   mutate(prod_of_weights = gear_weights_new * species_weights_new * consumption_weights_new) %>%
-  group_by(species_group) %>%
+  group_by(ï..species_group) %>%
   mutate(overall_weights = prod_of_weights/sum(prod_of_weights)) %>%
   ungroup() %>%
   # ADD sci and taxa-level indices
   mutate(clean_sci_name = as.factor(species),
          sci = as.numeric(clean_sci_name),
-         taxa = as.factor(species_group),
+         taxa = as.factor(ï..species_group),
          tx = as.numeric(taxa)) %>%
   # LAST FORMATING STEP - always arrange by clean_sci_name
   arrange(species)
@@ -213,7 +214,7 @@ fit_no_na <- sampling(object = no_na_mod,
                       data = stan_data, 
                       cores = 2, 
                       seed = "11729", 
-                      iter = 2500, 
+                      iter = 2000, 
                       control = list(adapt_delta = 0.99, max_treedepth = 15))
 #fit_no_na <- sampling(object = no_na_mod, data = stan_data, cores = 4, iter = 5000, control = list(adapt_delta = 0.99))
 summary(fit_no_na)$summary
@@ -330,4 +331,84 @@ fit_no_na %>%
   theme_classic() + 
   sci_plot_theme + 
   labs(x = units_for_plot, y = "", title = "")
+ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-UNWEIGHTED.png"), width = 11, height = 8.5)
+
+
+
+######################################################################################################
+# Calculations for Prawn GHG
+
+# Key for naming taxa levels
+# Get full taxa group names back
+tx_index_key_prawn <- wild_dat_new_weights %>%
+  group_by(clean_sci_name) %>% filter(taxa == "Shrimps") %>%
+  mutate(n_obs = n()) %>%
+  ungroup() %>%
+  select(taxa, tx) %>%
+  unique() %>%
+  arrange(taxa) 
+
+# Key for naming sci levels
+# Get full taxa group names back
+sci_index_key_prawn <- wild_dat_new_weights %>% filter(taxa == "Shrimps") %>%
+  group_by(clean_sci_name) %>%
+  mutate(n_obs = n()) %>%
+  ungroup() %>%
+  select(clean_sci_name, sci, taxa, tx, n_obs) %>%
+  unique() %>%
+  arrange(taxa)
+
+#Test - WEIGHTED taxa-level GHG
+fit_no_na %>%
+  spread_draws(tx_ghg_w[tx]) %>%
+  median_qi(tx_ghg_w, .width = c(0.95, 0.8, 0.5)) %>%
+  left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
+  ggplot(aes(y = taxa, x = tx_ghg_w)) +
+  geom_interval(aes(xmin = .lower, xmax = .upper)) +
+  theme_classic() + 
+  #coord_cartesian(xlim = c(0, 12500)) +
+  tx_plot_theme + 
+  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
+ggsave(filename = file.path(outdir, "plot_WILD-GHG-TAXA-LEVEL-WEIGHTED.png"), width = 11, height = 8.5)
+
+#Test - UNWEIGHTED taxa-level GHG
+fit_no_na %>%
+  spread_draws(tx_mu_ghg[tx]) %>%
+  median_qi(tx_mu_ghg, .width = c(0.95, 0.8, 0.5)) %>%
+  left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
+  # SET plants and bivalves to 0
+  ggplot(aes(y = taxa, x = tx_mu_ghg)) +
+  geom_interval(aes(xmin = .lower, xmax = .upper)) +
+  theme_classic() + 
+  tx_plot_theme + 
+  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
+ggsave(filename = file.path(outdir, "plot_WILD-GHG-TAXA-LEVEL-UNWEIGHTED.png"), width = 11, height = 8.5)
+
+#Test - WEIGHTED sci-level GHG
+fit_no_na %>%
+  spread_draws(sci_ghg_w[sci]) %>%
+  median_qi(sci_ghg_w, .width = c(0.95, 0.8, 0.5)) %>%
+  left_join(sci_index_key, by = "sci") %>% # Join with index key to get sci and taxa names
+  ggplot(aes(y = paste(taxa, clean_sci_name, sep = ""), x = sci_ghg_w)) +
+  geom_interval(aes(xmin = .lower, xmax = .upper)) +
+  scale_color_brewer() +
+  theme_classic() + 
+  sci_plot_theme + 
+  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
+ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-WEIGHTED.png"), width = 11, height = 8.5)
+
+#Test -unweighted taxa level GHG
+fit_no_na %>%
+  spread_draws(sci_mu_ghg[sci]) %>%
+  median_qi(sci_mu_ghg, .width = c(0.95)) %>%
+  left_join(sci_index_key_prawn, by = "sci") %>% # Join with index key to get sci and taxa names
+ggplot(aes(y = paste(taxa, clean_sci_name, sep = ""), x = sci_mu_ghg))+ geom_interval(aes(xmin = .lower, xmax = .upper)) +
+  scale_color_brewer() +
+  theme_classic() + 
+  sci_plot_theme + 
+  labs(x = units_for_plot, y = "", title = "") +stat_summary(`fun`=mean, geom="point") +
+  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
 ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-UNWEIGHTED.png"), width = 11, height = 8.5)
