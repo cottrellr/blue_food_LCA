@@ -336,79 +336,27 @@ ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-UNWEIGHTED.png"), w
 
 
 ######################################################################################################
-# Calculations for Prawn GHG
+# Calculations for Wild_caught Prawn GHG
 
-# Key for naming taxa levels
-# Get full taxa group names back
-tx_index_key_prawn <- wild_dat_new_weights %>%
-  group_by(clean_sci_name) %>% filter(taxa == "Shrimps") %>%
-  mutate(n_obs = n()) %>%
-  ungroup() %>%
-  select(taxa, tx) %>%
-  unique() %>%
-  arrange(taxa) 
+#export Model output
 
-# Key for naming sci levels
-# Get full taxa group names back
-sci_index_key_prawn <- wild_dat_new_weights %>% filter(taxa == "Shrimps") %>%
-  group_by(clean_sci_name) %>%
-  mutate(n_obs = n()) %>%
-  ungroup() %>%
-  select(clean_sci_name, sci, taxa, tx, n_obs) %>%
-  unique() %>%
-  arrange(taxa)
+write_csv(wild_dat_new_weights, file = here("Outputs/wild_data_GHG_Model.csv"))
 
-#Test - WEIGHTED taxa-level GHG
-fit_no_na %>%
-  spread_draws(tx_ghg_w[tx]) %>%
-  median_qi(tx_ghg_w, .width = c(0.95, 0.8, 0.5)) %>%
-  left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
-  ggplot(aes(y = taxa, x = tx_ghg_w)) +
-  geom_interval(aes(xmin = .lower, xmax = .upper)) +
-  theme_classic() + 
-  #coord_cartesian(xlim = c(0, 12500)) +
-  tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
-  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
-ggsave(filename = file.path(outdir, "plot_WILD-GHG-TAXA-LEVEL-WEIGHTED.png"), width = 11, height = 8.5)
 
-#Test - UNWEIGHTED taxa-level GHG
-fit_no_na %>%
-  spread_draws(tx_mu_ghg[tx]) %>%
-  median_qi(tx_mu_ghg, .width = c(0.95, 0.8, 0.5)) %>%
-  left_join(tx_index_key, by = "tx") %>% # Join with index key to get sci and taxa names
-  # SET plants and bivalves to 0
-  ggplot(aes(y = taxa, x = tx_mu_ghg)) +
-  geom_interval(aes(xmin = .lower, xmax = .upper)) +
-  theme_classic() + 
-  tx_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
-  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
-ggsave(filename = file.path(outdir, "plot_WILD-GHG-TAXA-LEVEL-UNWEIGHTED.png"), width = 11, height = 8.5)
+wild_ghg_data <- read_csv(here("Outputs/wild_data_GHG_Model.csv")) %>% filter(taxa == "Shrimps") %>% select(species, gear, ghg, clean_sci_name, taxa)
 
-#Test - WEIGHTED sci-level GHG
-fit_no_na %>%
-  spread_draws(sci_ghg_w[sci]) %>%
-  median_qi(sci_ghg_w, .width = c(0.95, 0.8, 0.5)) %>%
-  left_join(sci_index_key, by = "sci") %>% # Join with index key to get sci and taxa names
-  ggplot(aes(y = paste(taxa, clean_sci_name, sep = ""), x = sci_ghg_w)) +
-  geom_interval(aes(xmin = .lower, xmax = .upper)) +
-  scale_color_brewer() +
-  theme_classic() + 
-  sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "")+stat_summary(`fun`=mean, geom="point") +
-  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
-ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-WEIGHTED.png"), width = 11, height = 8.5)
 
-#Test -unweighted taxa level GHG
-fit_no_na %>%
-  spread_draws(sci_mu_ghg[sci]) %>%
-  median_qi(sci_mu_ghg, .width = c(0.95)) %>%
-  left_join(sci_index_key_prawn, by = "sci") %>% # Join with index key to get sci and taxa names
-ggplot(aes(y = paste(taxa, clean_sci_name, sep = ""), x = sci_mu_ghg))+ geom_interval(aes(xmin = .lower, xmax = .upper)) +
-  scale_color_brewer() +
-  theme_classic() + 
-  sci_plot_theme + 
-  labs(x = units_for_plot, y = "", title = "") +stat_summary(`fun`=mean, geom="point") +
-  stat_summary(`fun`=mean, geom="label", aes(label = round(..x.., 2)), hjust = -0.1)
-ggsave(filename = file.path(outdir, "plot_WILD-GHG-SCI-LEVEL-UNWEIGHTED.png"), width = 11, height = 8.5)
+(wild_ghg <- wild_ghg_data %>% 
+    group_by(clean_sci_name) %>% 
+    summarise(mean_ghg = mean(ghg),
+              sd_ghg = sd(ghg)))
+
+
+(total_ghg_wild <- wild_ghg_data %>% 
+    summarise(mean_ghg = mean(ghg),
+              sd_ghg = sd(ghg)) %>% 
+    add_column(wild_caught = "Other") %>% 
+    select(wild_caught, mean_ghg, sd_ghg))
+
+
+

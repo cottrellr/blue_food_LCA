@@ -524,7 +524,16 @@ tx_feed_key <- lca_model_dat %>%
 #export model output
 write_csv(lca_model_dat, file = here("Outputs/lca_model_data_no-summary.csv"))
 
+(lca_by_country <- lca_data %>% 
+    group_by(iso3c) %>% 
+    summarise(mean_ghg = mean(total_ghg),
+              sd_ghg = sd(total_ghg)))
 
+(total_ghg <- lca_data %>% 
+    summarise(mean_ghg = mean(total_ghg),
+              sd_ghg = sd(total_ghg)) %>% 
+    add_column(iso3c = "Other") %>% 
+    select(iso3c, mean_ghg, sd_ghg))
 
 sci_feed_key <- lca_model_dat %>%
   select(contains(c("clean_sci_name", "taxa", "sci", "soy", "crops", "fmfo", "animal"))) %>%
