@@ -128,7 +128,7 @@ total_output_list[[i]] <- redundant_trade_emissions
   
 }
   
-write_csv(x = redundant_trade_emissions, file = here("data/output/emissions_output_w_reps.csv"))
+write.csv(x = redundant_trade_emissions, file = here("data/output/emissions_output_w_reps.csv"))
 
 #Emission per species
 emissions_per_species <-redundant_trade_emissions %>% 
