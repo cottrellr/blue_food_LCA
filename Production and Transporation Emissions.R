@@ -1,5 +1,5 @@
 library(here)
-library(dplyr)
+library(tidyverse)
 
 #Emissions calculations for Farmed Prawns
 
@@ -52,6 +52,8 @@ Country_Mean_1 <- lca_data %>% group_by(iso3c) %>% summarise(mean_ghg = mean(tot
 
 target <- c("CHN","IDN","THA","VNM")
 
+#WHAT IS THE REASON FOR USING BANGLADESH AS AVERAGE?
+
 Country_mean_2 <- read_csv(here("Outputs/lca_model_data_no-summary.csv"))%>% filter(taxa == "shrimp") %>% filter(!iso3c %in% target) %>% 
   select(study_id, iso3c, clean_sci_name, taxa, intensity, system, total_ghg ) %>% arrange(iso3c) %>% group_by(iso3c) %>% summarise(mean_ghg = mean(total_ghg))%>%
   mutate(iso3c = replace(iso3c, iso3c == "BGD", "Other_Countries_Farmed"))
@@ -66,13 +68,64 @@ GHG_EF <- bind_rows(total_ghg_wild,Mean_GHG_farmed)
 
 #Transportation
 
-output <- list()
+
 
 #Lower quartile: 15.2, Upper Quartile: 20.1 as per IMO GHG Report
 
-Emissions_Range <- seq(15.2,20.1,by=0.1)
 
-sd(Emissions_Range)
+#The emissions should go in its own csv and be read in
+Emissions_Range <- c(35.2, 27.3,
+                     20.3, 17.7, 16.6, 13.4, 10.6, 7.3)
+
+
+
+
+transport_distance_volume_spp <- read_csv("data/Transportation_Distance_Per_Species.csv")
+
+emissions_factors <- read_csv("data/Carrier_Size_GHG.csv")
+
+transport_distance_volume_spp_list <- transport_distance_volume_spp %>% 
+  group_split(iso3c, species_name, prod_method, quantity, distance)
+
+
+transport_output_list <- list()
+total_output_list <- list()
+
+set.seed(333)
+
+for(i in 1:500){
+  
+  ef <- runif(n=1, min = min(emissions_factors$mean_ef), max = max(emissions_factors$mean_ef))
+  
+  (calc_df <- transport_distance_volume_spp %>% 
+    mutate(ef = ef) %>% 
+    mutate(next_column = quantity*distance*ef*2) %>% 
+    mutate(final_column = next_column/0.5*1000) %>% 
+    mutate(rep = i))
+  
+  output_df_list[[i]] <- calc_df
+
+  #add in production
+  
+  total_calc_df <- calc_df %>% 
+    envioronmental_data. #whatever this is
+  
+  total_output_list[[i]] <- total_calc_df
+  
+}
+  
+emissions_outputfile <- bind_rows(output_df_list)  
+
+write_csv(x = emissions_outputfile, file = here("data/output/emissions_output_w_reps.csv"))
+
+
+emissions_outputfile %>% 
+  group_by(iso3c, species_name, prod_method) %>% 
+  summarise(estimate = mean(final_column, na.rm= TRUE),
+            sd = sd(final_column, na.rm = TRUE))
+  
+  
+
 
 #SD is 1.457738
 
