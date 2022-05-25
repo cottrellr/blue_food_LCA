@@ -119,8 +119,12 @@ redundant_trade_emissions <- redundant_trade_emissions %>% unite(mean_ghg,c("mea
 redundant_trade_emissions <-redundant_trade_emissions %>% mutate(mean_ghg = ifelse(mean_ghg %in% "", 5647.98129728448
 ,mean_ghg)) %>% view()
 
-  
-  total_output_list[[i]] <- redundant_trade_emissions
+#Include Emissions from production
+
+redundant_trade_emissions <- redundant_trade_emissions %>% mutate(production_emissions = quantity*as.numeric(mean_ghg))
+
+
+total_output_list[[i]] <- redundant_trade_emissions
   
 }
   
