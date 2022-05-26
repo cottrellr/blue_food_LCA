@@ -91,10 +91,10 @@ for(i in 1:500){
   (calc_df <- transport_distance_volume_spp %>% 
     mutate(ef = ef) %>% 
     mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
-    mutate(total_emissions = emissions_nautical_mile*0.54/1000) %>% 
+    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% 
     mutate(rep = i))
   
-  output_df_list[[i]] <- calc_df
+}
 
 #add in production data
   
@@ -104,7 +104,9 @@ redundant_trade_emissions <- merge(Country_Mean_Farmed,calc_df, by = c("iso3c","
   
 #Add in production GHG for wild caught
 
-total_ghg_wild <- total_ghg_wild[,c(1,3,2)]
+total_ghg_wild <- total_ghg_wild %>% mutate(prod_method = "Wild")
+
+total_ghg_wild <- total_ghg_wild[,c(2,1)]
 
 #remove the iso3c
 
@@ -125,10 +127,8 @@ redundant_trade_emissions <- redundant_trade_emissions %>% mutate(production_emi
 
 
 total_output_list[[i]] <- redundant_trade_emissions
-  
-}
-  
-write.csv(x = redundant_trade_emissions, file = here("data/output/emissions_output_w_reps.csv"))
+
+reudndant_trade_emissions <- redundant_trade_emissions[,c(1,2,3,4,5,6,7,8,9,11,10)]
 
 #Emission per species
 emissions_per_species <-redundant_trade_emissions %>% 
