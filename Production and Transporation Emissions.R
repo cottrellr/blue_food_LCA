@@ -144,6 +144,8 @@ redundant_trade_emissions %>%
   summarise(estimate = mean(total_emissions, na.rm= TRUE),
             sd = sd(total_emissions, na.rm = TRUE)) %>% view()
 
+write.csv(redundant_trade_emissions, file = "data/redundant_trade_emissions")
+
 #Plots
 
 #In the interest of time, I might just plot using excel first instead of R
