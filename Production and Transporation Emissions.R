@@ -32,7 +32,6 @@ wild_ghg_data <- read_csv(here("Outputs/wild_data_GHG_Model.csv")) %>% filter(ta
     add_column(iso3c = "Wild") %>% select(iso3c,mean_ghg,sd_ghg))
 
 
-
 #The reason why we take the mean and sd of all prawn species involved is due to the fact that they contain prawns that are not included in redundant trade
 
 #Mean for each country (Farmed Prawns Only)
@@ -86,9 +85,11 @@ for(i in 1:500){
   (calc_df <- transport_distance_volume_spp %>% 
     mutate(ef = ef) %>% 
     mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
-    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(sd = sd(emissions_factors$sd)*quantity*distance*2) %>% mutate(rep = i))
+    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(rep = i))
   
 }
+
+write.csv(calc_df, file = "data/transport_emissions.csv")
 
 #add in production data
   
@@ -132,14 +133,11 @@ redundant_trade_emissions <-redundant_trade_emissions %>% mutate(sd_ghg = ifelse
 
 redundant_trade_emissions <- redundant_trade_emissions %>% mutate(production_emissions = quantity*as.numeric(mean_ghg))
                                                                   
-redundant_trade_emissions <- redundant_trade_emissions %>% mutate(total_emissions = production_emissions+transport_emissions)
+redundant_trade_emissions <- redundant_trade_emissions %>% mutate(total_emissions = production_emissions + transport_emissions)
 
 total_output_list[[i]] <- redundant_trade_emissions
 
-redundant_trade_emissions <- redundant_trade_emissions[,c(1,2,3,4,5,6,13,7,8,9,10,11,12)]
-
-
-#OK UNTIL HERE
+redundant_trade_emissions <- redundant_trade_emissions[,c(1,2,3,4,5,6,13,7,8,9,10,11,14,12)]
 
 #Emission per species
 emissions_per_species <-redundant_trade_emissions %>% 
