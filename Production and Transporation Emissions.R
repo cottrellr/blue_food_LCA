@@ -32,9 +32,6 @@ wild_ghg_data <- read_csv(here("Outputs/wild_data_GHG_Model.csv")) %>% filter(ta
     add_column(iso3c = "Wild") %>% select(iso3c,mean_ghg,sd_ghg))
 
 
-#Combine both to be side by side
-
-GHG_data <- rbind(lca_by_country,wild_ghg)
 
 #The reason why we take the mean and sd of all prawn species involved is due to the fact that they contain prawns that are not included in redundant trade
 
@@ -86,12 +83,10 @@ for(i in 1:500){
   
   ef <- runif(n=1, min = min(emissions_factors$mean_ef), max = max(emissions_factors$mean_ef))
   
-  sd <- runif(n=1, min =min(emissions_factors$sd), max = max(emissions_factors$sd))
-  
   (calc_df <- transport_distance_volume_spp %>% 
     mutate(ef = ef) %>% 
     mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
-    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(sd = sd) %>% mutate(rep = i))
+    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(sd = sd(emissions_factors$sd)*quantity*distance*2) %>% mutate(rep = i))
   
 }
 
