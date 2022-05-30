@@ -75,7 +75,7 @@ transport_distance_volume_spp_list <- transport_distance_volume_spp %>%
 
 
 transport_output_list <- list()
-total_output_list <- list()
+
 
 set.seed(333)
 
