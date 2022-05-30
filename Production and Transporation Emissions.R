@@ -76,9 +76,9 @@ transport_distance_volume_spp_list <- transport_distance_volume_spp %>%
 transport_output_list <- list()
 
 
-set.seed(333)
+set.seed(42)
 
-for(i in 1:500){
+for(i in 1:1000){
   
   ef <- runif(n=1, min = min(emissions_factors$mean_ef), max = max(emissions_factors$mean_ef))
   
@@ -87,9 +87,43 @@ for(i in 1:500){
     mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
     mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(rep = i))
   
+  transport_output_list[[i]] <- calc_df
+  
 }
 
-write.csv(calc_df, file = "data/transport_emissions.csv")
+all_transport_iterations <- bind_rows(transport_output_list)
+
+
+write.csv(all_transport_iterations, file = "data/transport_emissions.csv")
+
+
+########### Below is the summary for transportation emissions by country and species #######
+
+all_transport_iterations <- read_csv("data/transport_emissions.csv") %>% select(-X1)
+
+country_species_transport_emissions <- 
+  all_transport_iterations |> 
+  group_by(iso3c, species_name) |> 
+  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),
+            SEM_emissions = sd(transport_emissions, na.rm = TRUE)/sqrt(1000))
+  
+write_csv(country_species_transport_emissions, "data/transport_emissions_by_country_species_summary.csv")
+
+############ Below is the summary for transportation emissions by just country #############
+
+
+country_transport_emissions <- 
+  all_transport_iterations |> 
+  group_by(iso3c) |> 
+  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),
+            SEM_emissions = sd(transport_emissions, na.rm = TRUE)/sqrt(1000))
+
+write_csv(country_transport_emissions, "data/transport_emissions_by_country_summary.csv")
+
+
+
+
+
 
 #add in production data
   
