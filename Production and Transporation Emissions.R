@@ -99,13 +99,16 @@ write.csv(all_transport_iterations, file = "data/transport_emissions.csv")
 
 ########### Below is the summary for transportation emissions by country and species #######
 
-all_transport_iterations <- read_csv("data/transport_emissions.csv") %>% select(-X1)
+all_transport_iterations <- read_csv("data/transport_emissions.csv")
 
 country_species_transport_emissions <- 
   all_transport_iterations |> 
-  group_by(iso3c, species_name) |> 
-  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),
-            SEM_emissions = sd(transport_emissions, na.rm = TRUE)/sqrt(1000))
+  group_by(iso3c, species_name, rep) |>
+  summarise(sum_emissions = sum(transport_emissions, na.rm=TRUE)) %>% 
+  ungroup() %>% 
+  group_by(iso3c, species_name) %>% 
+  summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
+            SEM_emissions = sd(sum_emissions, na.rm = TRUE))
   
 write_csv(country_species_transport_emissions, "data/transport_emissions_by_country_species_summary.csv")
 
@@ -113,13 +116,15 @@ write_csv(country_species_transport_emissions, "data/transport_emissions_by_coun
 
 
 country_transport_emissions <- 
-  all_transport_iterations |> 
+  all_transport_iterations |>
+  group_by(iso3c, rep) |>
+  summarise(sum_emissions = sum(transport_emissions, na.rm=TRUE)) %>% 
+  ungroup() %>% 
   group_by(iso3c) |> 
-  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),
-            SEM_emissions = sd(transport_emissions, na.rm = TRUE)/sqrt(1000))
+  summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
+            SEM_emissions = sd(sum_emissions, na.rm = TRUE)/sqrt(1000))
 
 write_csv(country_transport_emissions, "data/transport_emissions_by_country_summary.csv")
-
 
 
 
