@@ -122,7 +122,7 @@ country_transport_emissions <-
   ungroup() %>% 
   group_by(iso3c) |> 
   summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
-            SEM_emissions = sd(sum_emissions, na.rm = TRUE)/sqrt(1000))
+            SEM_emissions = sd(sum_emissions, na.rm = TRUE))
 
 write_csv(country_transport_emissions, "data/transport_emissions_by_country_summary.csv")
 
