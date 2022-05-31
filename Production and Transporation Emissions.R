@@ -238,8 +238,8 @@ print(test_ggplot)
 ggsave(file = "Outputs/emissions_species_country.png")
 
 test_ggplot_2 <- 
-  ggplot(country_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions, fill = "blue")) +
-  geom_col(position = position_dodge(width=0.5)) +
+  ggplot(country_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions)) +
+  geom_col(position = position_dodge(width=0.5), fill = "#29CAEA") +
   geom_errorbar(aes(x=iso3c, ymin= mean_emissions-SEM_emissions, ymax= mean_emissions+SEM_emissions), position = "dodge")+
   ylab("CO2e emissions") +
   xlab("")+ 
@@ -251,12 +251,14 @@ print(test_ggplot_2)
 
 Total_Emissions[6,6]=0.1
 
-test_ggplot_3 <- 
-  
+Emissions_Per_Country_ggplot <- 
   ggplot(Total_Emissions, aes(x = reorder(iso3c, -total_emissions), y = total_emissions)) +
-  geom_bar(stat="identity", color="white", position=position_dodge()) +
+  geom_bar(stat="identity", fill ="#14A6C3", position=position_dodge()) +
   geom_errorbar(aes(x = iso3c, ymin= total_emissions-total_sd, ymax= total_emissions+total_sd), position = position_dodge(0.9))+
-  ylab("CO2e emissions") + xlab("") + 
-  theme(axis.title.x=element_blank()) + scale_y_continuous(trans=scales::pseudo_log_trans(base = 10), breaks = breaks, labels = comma(breaks))
+  ylab("CO2e emissions (Kg CO2e)") + xlab("") + 
+  theme(panel.background = element_blank())+
+  scale_y_continuous(trans=scales::pseudo_log_trans(base = 10), breaks = breaks, labels = comma(breaks))
+  
 
-print(test_ggplot_3)
+print(Emissions_Per_Country_ggplot)
+ggsave(file = "Outputs/total_emissions_per_country.png")
