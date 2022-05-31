@@ -144,7 +144,7 @@ country_species_transport_emissions <-
   group_by(iso3c, species_name, rep) |>
   summarise(sum_emissions = sum(transport_emissions, na.rm=TRUE)) %>% 
   ungroup() %>% 
-  group_by(iso3c, species_name) %>% 
+  group_by(iso3c, species_name,prod_method) %>% 
   summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
             SEM_emissions = sd(sum_emissions, na.rm = TRUE))
 
@@ -153,11 +153,11 @@ write_csv(country_species_transport_emissions, "data/transport_emissions_by_coun
 ############ Below is the summary for transportation emissions by just country #############
 
 country_transport_emissions <- 
-  all_transport_iterations |>
-  group_by(iso3c, rep) |>
+  all_transport_iterations |> 
+  group_by(iso3c, species_name, rep,prod_method) |>
   summarise(sum_emissions = sum(transport_emissions, na.rm=TRUE)) %>% 
   ungroup() %>% 
-  group_by(iso3c) |> 
+  group_by(iso3c, species_name, prod_method) %>% 
   summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
             SEM_emissions = sd(sum_emissions, na.rm = TRUE))
 
@@ -177,11 +177,11 @@ write_csv(country_transport_emissions_GHG_footprint, "data/country_transport_emi
 
 #Include Emissions from production
 
-#Need to left join redundant_Trade_emissions and transportation
-
 #Remove previous transportation calculations & rename + arrange all columns for easier readability
 
 redundant_trade_emissions <- select(redundant_trade_emissions, -c(distance,ef,emissions_nautical_mile,transport_emissions))
+
+redundant_trade_emissions %>% group_by(iso3c)
 
 Total_Emissions <- left_join(redundant_trade_emissions,country_species_transport_emissions, by = c("iso3c","species_name"))
 
@@ -215,10 +215,12 @@ ggplot_ghg_per_country <- ggplot(country_transport_emissions, aes(x = reorder(is
   geom_errorbar(aes(ymin=mean_emissions-SEM_emissions, ymax=mean_emissions+SEM_emissions), width=.2, position=position_dodge(.9)) +
   theme(axis.title.x=element_blank()) + scale_y_continuous(labels = label_number(suffix = " tonnes", scale = 1e-3), trans ="log10")
 
+
 print(ggplot_ghg_per_country)
 
-
 #GHG by country and species
+
+breaks = 10**(1:10)
 
 country_species_transport_emissions <- country_species_transport_emissions %>% group_by(iso3c) %>% arrange(sum(-mean_emissions))
 
@@ -228,13 +230,12 @@ test_ggplot <-
   geom_errorbar(aes(x=iso3c, ymin= mean_emissions-SEM_emissions, ymax= mean_emissions+SEM_emissions), position = position_dodge(width=0.5))+
   ylab("CO2e emissions (tonnes)") +
   xlab("")+ 
-  scale_y_continuous(labels = label_number(scale = 1e-3), trans= "log10") +
+  scale_y_continuous(breaks = breaks, labels = comma(breaks), trans= "log10") +
   scale_fill_manual(values = c("red","sky blue","orange","light green","yellow")) + coord_flip() +
   theme_classic()
 
 print(test_ggplot) 
 ggsave(file = "Outputs/emissions_species_country.png")
-
 
 test_ggplot_2 <- 
   ggplot(country_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions, fill = "blue")) +
@@ -246,6 +247,16 @@ test_ggplot_2 <-
 
 print(test_ggplot_2)
 
+#Having a zero in the data frame doesn't let us plot SD accordingly hence we add a minimal value of 0.1 to it
+
+Total_Emissions[6,6]=0.1
 
 test_ggplot_3 <- 
-  ggplot(Total_Emissions)
+  
+  ggplot(Total_Emissions, aes(x = reorder(iso3c, -total_emissions), y = total_emissions)) +
+  geom_bar(stat="identity", color="white", position=position_dodge()) +
+  geom_errorbar(aes(x = iso3c, ymin= total_emissions-total_sd, ymax= total_emissions+total_sd), position = position_dodge(0.9))+
+  ylab("CO2e emissions") + xlab("") + 
+  theme(axis.title.x=element_blank()) + scale_y_continuous(trans=scales::pseudo_log_trans(base = 10), breaks = breaks, labels = comma(breaks))
+
+print(test_ggplot_3)
