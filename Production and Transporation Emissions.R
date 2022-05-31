@@ -58,7 +58,45 @@ Mean_GHG_farmed <- Country_Mean_Farmed %>% summarise(mean_ghg = mean(mean_ghg), 
 
 GHG_EF <- bind_rows(total_ghg_wild,Mean_GHG_farmed)
 
-#Transportation
+#add in production data
+  
+Country_Mean_Farmed <- Country_Mean_Farmed %>% mutate(prod_method = "Farmed")
+
+#Add in GHG values for missing countries based on values from Other_Countries_Farmed
+
+ghg_values_other_countries_production <- data.table(iso3c = c("IND","JPY", "MYS","SGP"), mean_ghg = c(5648,5648,5648,5648), sd_ghg = c(1973,1973,1973,1973), prod_method = c("Farmed","Farmed","Farmed","Farmed"))
+
+Country_Mean_Farmed <- rbind(Country_Mean_Farmed,ghg_values_other_countries_production)
+
+Country_Mean_Farmed <- Country_Mean_Farmed[-c(6),]
+  
+redundant_trade_emissions <- merge(Country_Mean_Farmed,calc_df, by = c("iso3c","prod_method"), all.y = T) %>% mutate(sd_ghg = if_else(is.na(sd_ghg), 0, sd_ghg))
+
+#Add in production GHG for wild caught
+
+total_ghg_wild <- total_ghg_wild %>% mutate(prod_method = "Wild")
+
+total_ghg_wild <- total_ghg_wild[,c(4,1,2,3)]
+
+#remove the iso3c
+
+total_ghg_wild <- select(total_ghg_wild, -c(iso3c))
+
+redundant_trade_emissions <- left_join(redundant_trade_emissions,total_ghg_wild, by = c("prod_method"))
+
+#change all zero values to NA
+redundant_trade_emissions <- na_if(redundant_trade_emissions, 0)
+
+redundant_trade_emissions <- redundant_trade_emissions %>% unite(mean_ghg,c("mean_ghg.y", "mean_ghg.x"), na.rm = TRUE) 
+
+redundant_trade_emissions <- redundant_trade_emissions %>% unite(sd_ghg,c("sd_ghg.y", "sd_ghg.x"), na.rm = TRUE)
+
+#fill blanks 
+
+redundant_trade_emissions <-redundant_trade_emissions %>% mutate(sd_ghg = ifelse(sd_ghg %in% "", 0 ,sd_ghg))
+
+
+#########Transportation###############
 
 #Add in emissions factors from the Fourth IMO GHG Study, we used values from 2017 for container ships.
 
@@ -83,9 +121,9 @@ for(i in 1:1000){
   ef <- runif(n=1, min = min(emissions_factors$mean_ef), max = max(emissions_factors$mean_ef))
   
   (calc_df <- transport_distance_volume_spp %>% 
-    mutate(ef = ef) %>% 
-    mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
-    mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(rep = i))
+      mutate(ef = ef) %>% 
+      mutate(emissions_nautical_mile = quantity*distance*ef*2) %>% 
+      mutate(transport_emissions = emissions_nautical_mile*0.54/1000) %>% mutate(rep = i))
   
   transport_output_list[[i]] <- calc_df
   
@@ -109,11 +147,10 @@ country_species_transport_emissions <-
   group_by(iso3c, species_name) %>% 
   summarise(mean_emissions = mean(sum_emissions, na.rm=TRUE),
             SEM_emissions = sd(sum_emissions, na.rm = TRUE))
-  
+
 write_csv(country_species_transport_emissions, "data/transport_emissions_by_country_species_summary.csv")
 
 ############ Below is the summary for transportation emissions by just country #############
-
 
 country_transport_emissions <- 
   all_transport_iterations |>
@@ -127,78 +164,88 @@ country_transport_emissions <-
 write_csv(country_transport_emissions, "data/transport_emissions_by_country_summary.csv")
 
 
+#calculating GHG footprint from transportation
 
+country_transport_emissions_GHG_footprint <- 
+  all_transport_iterations %>% group_by(iso3c) %>%
+  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),distance = mean(distance, na.rm = TRUE), quantity = sum(quantity)) %>% 
+  mutate(footprint = mean_emissions/quantity/1000)
 
+write_csv(country_transport_emissions_GHG_footprint, "data/country_transport_emissions_GHG_footprint.csv")
 
-#add in production data
-  
-Country_Mean_Farmed <- Country_Mean_Farmed %>% mutate(prod_method = "Farmed")
-
-#Add in GHG values for missing countries based on values from Other_Countries_Farmed
-
-ghg_values_other_countries_production <- data.table(iso3c = c("IND","JPY", "MYS","SGP"), mean_ghg = c(5648,5648,5648,5648), sd_ghg = c(1973,1973,1973,1973), prod_method = c("Farmed","Farmed","Farmed","Farmed"))
-
-Country_Mean_Farmed <- rbind(Country_Mean_Farmed,ghg_values_other_countries_production)
-
-Country_Mean_Farmed <- Country_Mean_Farmed[-c(6),]
-  
-redundant_trade_emissions <- merge(Country_Mean_Farmed,calc_df, by = c("iso3c","prod_method"), all.y = T) %>% mutate(sd_ghg = if_else(is.na(sd_ghg), 0, sd_ghg)) %>% view()
-
-#Add in production GHG for wild caught
-
-total_ghg_wild <- total_ghg_wild %>% mutate(prod_method = "Wild")
-
-total_ghg_wild <- total_ghg_wild[,c(4,1,2,3)]
-
-#remove the iso3c
-
-total_ghg_wild <- select(total_ghg_wild, -c(iso3c))
-
-redundant_trade_emissions <- left_join(redundant_trade_emissions,total_ghg_wild, by = c("prod_method")) %>% view()
-
-#change all zero values to NA
-redundant_trade_emissions <- na_if(redundant_trade_emissions, 0)
-
-redundant_trade_emissions <- redundant_trade_emissions %>% unite(mean_ghg,c("mean_ghg.y", "mean_ghg.x"), na.rm = TRUE) 
-
-redundant_trade_emissions <- redundant_trade_emissions %>% unite(sd_ghg,c("sd_ghg.y", "sd_ghg.x"), na.rm = TRUE)
-
-#fill blanks 
-
-redundant_trade_emissions <-redundant_trade_emissions %>% mutate(sd_ghg = ifelse(sd_ghg %in% "", 0 ,sd_ghg)) %>% view()
-
+###########Adding it all together#################
 
 #Include Emissions from production
 
-redundant_trade_emissions <- redundant_trade_emissions %>% mutate(production_emissions = quantity*as.numeric(mean_ghg))
-                                                                  
-redundant_trade_emissions <- redundant_trade_emissions %>% mutate(total_emissions = production_emissions + transport_emissions)
+#Need to left join redundant_Trade_emissions and transportation
 
-total_output_list[[i]] <- redundant_trade_emissions
+#Remove previous transportation calculations & rename + arrange all columns for easier readability
 
-redundant_trade_emissions <- redundant_trade_emissions[,c(1,2,3,4,5,6,13,7,8,9,10,11,14,12)]
+redundant_trade_emissions <- select(redundant_trade_emissions, -c(distance,ef,emissions_nautical_mile,transport_emissions))
 
-#Emission per species
-emissions_per_species <-redundant_trade_emissions %>% 
-  group_by(species_name, prod_method) %>% 
-  summarise(species_emission = sum(total_emissions, na.rm= TRUE)) %>% view()
+Total_Emissions <- left_join(redundant_trade_emissions,country_species_transport_emissions, by = c("iso3c","species_name"))
 
-sum(emissions_per_species$species_emission)
+Total_Emissions <- rename(Total_Emissions,production_emissions = mean_ghg, production_sd = sd_ghg,transport_emissions = mean_emissions,transport_sd = SEM_emissions)
 
-colnames(redundant_trade_emissions)[which(names(redundant_trade_emissions) == "total_emissions")] <- "transport_emissions"
+Total_Emissions <- Total_Emissions[,c(1,2,5,6,3,4,8,9,7)]
 
-#Total emissions produced from transportation is 4730576 kg CO2
+#Add total emissions columns and production
 
-redundant_trade_emissions %>% 
-  group_by(species_name, prod_method) %>% 
-  summarise(estimate = mean(transport_emissions, na.rm= TRUE),
-            sd = sd(transport_emissions, na.rm = TRUE)) %>% view()
+Total_Emissions$production_emissions <- as.integer(Total_Emissions$production_emissions)
 
-write.csv(redundant_trade_emissions, file = "data/redundant_trade_emissions.csv")
+Total_Emissions$quantity <- as.integer(Total_Emissions$quantity)
 
-redundant_trade_emissions %>% group_by(species_name,prod_method) %>% summarise(transport_emissions) %>% view()
+Total_Emissions$production_sd <- as.integer(Total_Emissions$production_sd)
 
-#Plots
+Total_Emissions$transport_sd <- as.integer(Total_Emissions$transport_sd)
+
+Total_Emissions <- Total_Emissions %>% mutate(total_production_emissions = production_emissions * quantity) %>% mutate(total_emissions = total_production_emissions + transport_emissions) %>% mutate(total_sd = production_sd+transport_sd)
+
+Total_Emissions <- Total_Emissions[,c(1,2,3,4,5,6,7,8,11,9,12,10)]
+
+write_csv(Total_Emissions, "data/total_emissions.csv")
+
+#Plot
+
+library(ggplot2)
+library(scales)
+
+ggplot_ghg_per_country <- ggplot(country_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions)) +
+  geom_bar(stat="identity", color="white", position=position_dodge()) + 
+  geom_errorbar(aes(ymin=mean_emissions-SEM_emissions, ymax=mean_emissions+SEM_emissions), width=.2, position=position_dodge(.9)) +
+  theme(axis.title.x=element_blank()) + scale_y_continuous(labels = label_number(suffix = " tonnes", scale = 1e-3), trans ="log10")
+
+print(ggplot_ghg_per_country)
 
 
-  
+#GHG by country and species
+
+country_species_transport_emissions <- country_species_transport_emissions %>% group_by(iso3c) %>% arrange(sum(-mean_emissions))
+
+test_ggplot <- 
+  ggplot(country_species_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions, fill = species_name)) +
+  geom_col(width = 0.5,position = position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=iso3c, ymin= mean_emissions-SEM_emissions, ymax= mean_emissions+SEM_emissions), position = position_dodge(width=0.5))+
+  ylab("CO2e emissions (tonnes)") +
+  xlab("")+ 
+  scale_y_continuous(labels = label_number(scale = 1e-3), trans= "log10") +
+  scale_fill_manual(values = c("red","sky blue","orange","light green","yellow")) + coord_flip() +
+  theme_classic()
+
+print(test_ggplot) 
+ggsave(file = "Outputs/emissions_species_country.png")
+
+
+test_ggplot_2 <- 
+  ggplot(country_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions, fill = "blue")) +
+  geom_col(position = position_dodge(width=0.5)) +
+  geom_errorbar(aes(x=iso3c, ymin= mean_emissions-SEM_emissions, ymax= mean_emissions+SEM_emissions), position = "dodge")+
+  ylab("CO2e emissions") +
+  xlab("")+ 
+  scale_y_continuous(labels = label_number(suffix = " tonnes", scale = 1e-3), trans= "log10")
+
+print(test_ggplot_2)
+
+
+test_ggplot_3 <- 
+  ggplot(Total_Emissions)
