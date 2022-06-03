@@ -203,6 +203,12 @@ Total_Emissions <- Total_Emissions %>% mutate(total_production_emissions = produ
 
 Total_Emissions <- Total_Emissions[,c(1,2,3,4,5,6,7,8,11,9,12,10)]
 
+#Rename iso3c to country names for plotting purposes
+
+library(forcats)
+
+Total_Emissions <- Total_Emissions %>% mutate(iso3c = fct_recode(iso3c, "Bangladesh" = "BGD", "China" = "CHN", "Spain" = "ESP", "Indonesia" = "IDN", "India" = "IND", "Japan" = "JPY", "Malaysia" = "MYS", "Phillippines" = "PHL", "Singapore" = "SGP", "Thailand" = "THA", "Vietnam" = "VNM", "Papua New Guinea" = "PNG"))
+
 write_csv(Total_Emissions, "data/total_emissions.csv")
 
 #Plot
@@ -222,19 +228,20 @@ print(ggplot_ghg_per_country)
 
 breaks = 10**(1:10)
 
-country_species_transport_emissions <- country_species_transport_emissions %>% group_by(iso3c) %>% arrange(sum(-mean_emissions))
+country_species_transport_emissions <- country_species_transport_emissions %>% group_by(iso3c) %>% arrange(sum(-mean_emissions))%>% 
+mutate(iso3c = fct_recode(iso3c, "Bangladesh" = "BGD", "China" = "CHN", "Spain" = "ESP", "Indonesia" = "IDN", "India" = "IND", "Japan" = "JPY", "Malaysia" = "MYS", "Phillippines" = "PHL", "Singapore" = "SGP", "Thailand" = "THA", "Vietnam" = "VNM", "Papua New Guinea" = "PNG"))
 
-test_ggplot <- 
+Emissions_Per_Species_Transportation_ggplot <- 
   ggplot(country_species_transport_emissions, aes(x = reorder(iso3c, -mean_emissions), y = mean_emissions, fill = species_name)) +
   geom_col(width = 0.5,position = position_dodge(width=0.5)) +
   geom_errorbar(aes(x=iso3c, ymin= mean_emissions-SEM_emissions, ymax= mean_emissions+SEM_emissions), position = position_dodge(width=0.5))+
   ylab("CO2e emissions (tonnes)") +
-  xlab("")+ 
   scale_y_continuous(breaks = breaks, labels = comma(breaks), trans= "log10") +
   scale_fill_manual(values = c("red","sky blue","orange","light green","yellow")) + coord_flip() +
-  theme_classic()
+  theme_classic() +
+  theme(legend.position="bottom",legend.text = element_text(size = 8), legend.title = element_blank(),axis.title.y = element_blank(), axis.title.x = element_text(hjust = 1, vjust = -0.05, size = 9))
 
-print(test_ggplot) 
+print(Emissions_Per_Species_Transportation_ggplot) 
 ggsave(file = "Outputs/emissions_species_country.png")
 
 test_ggplot_2 <- 
@@ -252,13 +259,26 @@ print(test_ggplot_2)
 Total_Emissions[6,6]=0.1
 
 Emissions_Per_Country_ggplot <- 
-  ggplot(Total_Emissions, aes(x = reorder(iso3c, -total_emissions), y = total_emissions)) +
+  Total_Emissions %>% group_by(iso3c) %>% summarise(total_emissions = sum(total_emissions), total_sd = sum(total_sd)) %>%
+  ggplot(aes(x = reorder(iso3c, -total_emissions), y = total_emissions)) +
   geom_bar(stat="identity", fill ="#14A6C3", position=position_dodge()) +
   geom_errorbar(aes(x = iso3c, ymin= total_emissions-total_sd, ymax= total_emissions+total_sd), position = position_dodge(0.9))+
   ylab("CO2e emissions (Kg CO2e)") + xlab("") + 
-  theme(panel.background = element_blank())+
-  scale_y_continuous(trans=scales::pseudo_log_trans(base = 10), breaks = breaks, labels = comma(breaks))
+  theme(panel.background = element_blank(), axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), axis.title.x = element_text(hjust = 1, vjust = 1, size = 8))+
+  scale_y_continuous(trans=scales::pseudo_log_trans(base = 10), breaks = breaks, labels = comma(breaks)) + coord_flip()
   
-
 print(Emissions_Per_Country_ggplot)
 ggsave(file = "Outputs/total_emissions_per_country.png")
+
+Test_plot_4 <- 
+  country_transport_emissions %>% group_by(iso3c) %>%
+  summarise(mean_emissions = mean(transport_emissions, na.rm=TRUE),distance = mean(distance, na.rm = TRUE), quantity = sum(quantity)) %>% 
+  mutate(footprint = mean_emissions/quantity/1000)
+  
+  
+  ggplot(aes(x = reorder(iso3c, -total_emissions), y = total_emissions)) +
+  geom_bar(stat="identity", color="white", position=position_dodge()) + 
+  geom_errorbar(aes(ymin=total_emissions-sd, ymax=total_emissions+sd), width=.2, position=position_dodge(.9)) +
+  theme(axis.title.x=element_blank()) + scale_y_continuous(labels = label_number(scale = 1e-3), sec.axis = sec_axis(~./(country_transport_emissions$mean_emissions))
+  
+print(Test_plot_4)
